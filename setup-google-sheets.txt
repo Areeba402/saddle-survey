@@ -1,0 +1,113 @@
+============================================
+  GOOGLE SHEETS SETUP — Survey Responses
+============================================
+
+Follow these steps so every survey response automatically
+saves to your Google Sheet (from any device).
+
+STEP 1: Create a new Google Sheet
+──────────────────────────────────
+1. Open Google Sheets: https://sheets.google.com
+2. Click "Blank spreadsheet"
+3. Name it: "Saddle Survey Responses"
+4. In Row 1, type these headers starting from A1:
+
+   Timestamp | Name | Contact | City | Role | Experience | Frequency | Saddle Type | Saddle Source | Padding | Saddle Movement | Discomfort | Discomfort Area | Stirrup Ease | Weather Effects | Repair History | Repair Availability | Top 3 Priorities | Replaceable Parts | Biggest Problem | One Change
+
+
+STEP 2: Add the Apps Script
+────────────────────────────
+1. In Google Sheets, go to: Extensions > Apps Script
+2. Delete the existing code and paste this:
+
+────────────── CODE START ──────────────
+
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    if (headers[0] === '') {
+      headers = Object.keys(data);
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    }
+
+    var row = headers.map(function(header) {
+      return data[header] || '';
+    });
+
+    sheet.appendRow(row);
+
+    return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+────────────── CODE END ──────────────
+
+
+STEP 3: Deploy
+──────────────
+1. In the Apps Script editor: Deploy > New deployment
+2. Select type: "Web app"
+3. Settings:
+   - Description: "Saddle Survey"
+   - Execute as: "Me"
+   - Who has access: "Anyone"
+4. Click "Deploy"
+5. Click "Authorize access" > select your Google account
+   (If "This app isn't verified" appears: Advanced > Go to... > Allow)
+6. Copy the Web app URL — it looks like:
+   https://script.google.com/macros/s/AKfycb.../exec
+
+
+STEP 4: Paste the URL in the survey
+────────────────────────────────────
+1. Open index.html in Notepad or VS Code
+2. Find this line:
+   const GOOGLE_SHEET_URL = '';
+3. Paste your URL:
+   const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycb.../exec';
+4. Save the file
+
+
+DONE! ✅
+Now every survey submission will automatically appear
+in your Google Sheet.
+
+
+============================================
+  HOW TO HOST THE SURVEY ONLINE (Free)
+============================================
+
+Option A: Tiiny.host (Easiest — 1 minute)
+──────────────────────────────────────────
+1. Go to https://tiiny.host
+2. Drag & drop the index.html file
+3. You'll get a link — share it via WhatsApp
+
+Option B: Netlify Drop (Free, unlimited)
+────────────────────────────────────────
+1. Go to https://app.netlify.com/drop
+2. Drag the entire "saddle-survey" folder
+3. You'll get a link
+
+Option C: GitHub Pages (Permanent)
+──────────────────────────────────
+1. Create a new GitHub repository
+2. Upload index.html and admin.html
+3. Go to Settings > Pages > Source: main branch
+4. Your link: https://username.github.io/repo-name/
+
+
+ADMIN DASHBOARD
+───────────────
+- Open admin.html in your browser to view all responses
+- Or if hosted online: yoursite.com/admin.html
+- Responses auto-refresh every 5 seconds
+- You can export/import CSV files

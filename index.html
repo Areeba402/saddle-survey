@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horse Saddle Survey — Pakistan 🐴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117; --card: #1a1d27; --card-hover: #222633;
+  --accent: #7c5cfc; --accent-light: #9b82fc; --accent-glow: rgba(124,92,252,0.25);
+  --green: #34d399; --green-glow: rgba(52,211,153,0.2);
+  --text: #e4e4e7; --text-dim: #9ca3af; --border: #2a2d3a; --danger: #f87171; --radius: 14px;
+}
+body { font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height:1.6; -webkit-font-smoothing:antialiased; }
+.bg-glow { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-glow::before,.bg-glow::after { content:''; position:absolute; border-radius:50%; filter:blur(120px); opacity:0.15; animation:float 20s ease-in-out infinite; }
+.bg-glow::before { width:600px; height:600px; background:var(--accent); top:-200px; left:-100px; }
+.bg-glow::after { width:500px; height:500px; background:#06b6d4; bottom:-200px; right:-100px; animation-delay:-10s; }
+@keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-30px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)} }
+.progress-wrapper { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(15,17,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
+.progress-inner { max-width:700px; margin:0 auto; padding:12px 24px; display:flex; align-items:center; gap:14px; }
+.progress-bar-track { flex:1; height:6px; background:var(--border); border-radius:10px; overflow:hidden; }
+.progress-bar-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-light)); border-radius:10px; transition:width 0.5s cubic-bezier(0.22,1,0.36,1); box-shadow:0 0 12px var(--accent-glow); }
+.progress-text { font-size:13px; font-weight:600; color:var(--accent-light); min-width:40px; text-align:right; }
+.container { position:relative; z-index:1; max-width:700px; margin:0 auto; padding:80px 20px 60px; }
+.hero { text-align:center; padding:50px 24px 40px; margin-bottom:32px; }
+.hero-emoji { font-size:64px; display:block; margin-bottom:16px; animation:bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.hero h1 { font-size:clamp(24px,5vw,34px); font-weight:800; background:linear-gradient(135deg,#fff 0%,var(--accent-light) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; letter-spacing:-0.5px; }
+.hero p { font-size:15px; color:var(--text-dim); max-width:520px; margin:0 auto; line-height:1.7; }
+.survey-section { display:none; animation:fadeSlideIn 0.5s cubic-bezier(0.22,1,0.36,1); }
+.survey-section.active { display:block; }
+@keyframes fadeSlideIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.section-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.section-icon { width:44px; height:44px; background:var(--accent-glow); border:1px solid rgba(124,92,252,0.3); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.section-header h2 { font-size:20px; font-weight:700; color:#fff; }
+.section-header p { font-size:13px; color:var(--text-dim); margin-top:2px; }
+.q-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; transition:border-color 0.3s,box-shadow 0.3s; }
+.q-card:hover { border-color:rgba(124,92,252,0.3); box-shadow:0 4px 24px rgba(0,0,0,0.2); }
+.q-card.has-error { border-color:var(--danger); box-shadow:0 0 0 3px rgba(248,113,113,0.15); }
+.q-label { font-size:15px; font-weight:600; margin-bottom:6px; color:#fff; display:block; }
+.q-label .q-num { color:var(--accent-light); margin-right:6px; }
+.q-hint { font-size:13px; color:var(--text-dim); margin-bottom:14px; }
+.q-required { color:var(--danger); margin-left:4px; font-size:13px; }
+.q-error { font-size:12px; color:var(--danger); margin-top:8px; display:none; }
+.q-card.has-error .q-error { display:block; }
+.option-grid { display:flex; flex-direction:column; gap:8px; }
+.option-btn { position:relative; display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all 0.2s; font-size:14px; color:var(--text); }
+.option-btn:hover { background:rgba(124,92,252,0.06); border-color:rgba(124,92,252,0.3); }
+.option-btn input { display:none; }
+.option-btn .custom-check { width:20px; height:20px; border:2px solid var(--border); border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+.option-btn input[type="checkbox"]+.custom-check { border-radius:6px; }
+.option-btn input:checked+.custom-check { border-color:var(--accent); background:var(--accent); }
+.option-btn input:checked+.custom-check::after { content:'✓'; font-size:12px; color:#fff; font-weight:700; }
+.option-btn.selected { background:rgba(124,92,252,0.1); border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+.text-input,.text-area { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:14px; color:var(--text); font-family:inherit; transition:border-color 0.3s,box-shadow 0.3s; outline:none; }
+.text-input:focus,.text-area:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+.text-input::placeholder,.text-area::placeholder { color:var(--text-dim); }
+.text-area { min-height:100px; resize:vertical; }
+.scale-labels { display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px; }
+.scale-row { display:flex; align-items:center; gap:0; margin-top:4px; }
+.scale-btn { flex:1; padding:12px 0; text-align:center; background:rgba(255,255,255,0.03); border:1px solid var(--border); cursor:pointer; font-size:16px; font-weight:600; color:var(--text-dim); transition:all 0.2s; }
+.scale-btn:first-child { border-radius:10px 0 0 10px; }
+.scale-btn:last-child { border-radius:0 10px 10px 0; }
+.scale-btn:not(:last-child) { border-right:none; }
+.scale-btn:hover { background:rgba(124,92,252,0.08); color:var(--text); }
+.scale-btn.selected { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 16px var(--accent-glow); }
+.nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:32px; gap:12px; }
+.btn { padding:13px 28px; border-radius:10px; font-size:15px; font-weight:600; border:none; cursor:pointer; transition:all 0.25s; font-family:inherit; display:inline-flex; align-items:center; gap:8px; }
+.btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:#fff; box-shadow:0 4px 16px var(--accent-glow); }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(124,92,252,0.4); }
+.btn-secondary { background:rgba(255,255,255,0.06); color:var(--text); border:1px solid var(--border); }
+.btn-secondary:hover { background:rgba(255,255,255,0.1); }
+.btn-submit { background:linear-gradient(135deg,var(--green),#10b981); color:#fff; box-shadow:0 4px 16px var(--green-glow); width:100%; justify-content:center; padding:16px; font-size:17px; }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(52,211,153,0.35); }
+.consent-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:28px; margin-bottom:24px; }
+.consent-card h3 { font-size:16px; font-weight:700; margin-bottom:16px; color:#fff; }
+.consent-item { display:flex; align-items:flex-start; gap:12px; padding:10px 0; }
+.consent-item input[type="checkbox"] { accent-color:var(--accent); width:18px; height:18px; margin-top:2px; flex-shrink:0; cursor:pointer; }
+.consent-item label { font-size:14px; color:var(--text); cursor:pointer; }
+.thank-you { display:none; text-align:center; padding:60px 24px; animation:fadeSlideIn 0.6s ease; }
+.thank-you.active { display:block; }
+.ty-icon { font-size:72px; display:block; margin-bottom:24px; }
+.thank-you h2 { font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; }
+.thank-you p { font-size:15px; color:var(--text-dim); max-width:420px; margin:0 auto; }
+.other-input-wrapper { margin-top:8px; display:none; }
+.other-input-wrapper.visible { display:block; }
+.submit-overlay { display:none; position:fixed; inset:0; background:rgba(15,17,23,0.85); z-index:200; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+.submit-overlay.active { display:flex; }
+.spinner { width:48px; height:48px; border:4px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.submit-overlay p { color:var(--text); font-size:16px; font-weight:600; }
+@media (max-width:500px) { .container{padding:70px 14px 40px} .q-card{padding:18px} .hero{padding:30px 16px 24px} .btn{padding:12px 20px;font-size:14px} .nav-row{flex-wrap:wrap} }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="submit-overlay" id="submitOverlay"><div class="spinner"></div><p>Submitting...</p></div>
+
+<div class="progress-wrapper">
+  <div class="progress-inner">
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0%</div>
+  </div>
+</div>
+
+<div class="container" id="surveyApp">
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <span class="hero-emoji">🐴</span>
+    <h1>Horse Saddle Survey — Pakistan</h1>
+    <p>This survey is for a final-year Industrial Design thesis on improving horse saddle systems for riders in Pakistan. It takes about <strong>5 minutes</strong>. All responses are anonymous unless you choose to share contact details.</p>
+  </div>
+
+  <!-- ===== CONSENT + INFO ===== -->
+  <div class="survey-section active" id="section-consent">
+    <div class="section-header">
+      <div class="section-icon">👤</div>
+      <div><h2>Your Information</h2><p>This is for record-keeping only</p></div>
+    </div>
+
+    <div class="q-card" data-q="respondent_name" data-required="true">
+      <span class="q-label">Full Name<span class="q-required">*</span></span>
+      <input class="text-input" type="text" name="respondent_name" placeholder="Enter your full name">
+      <p class="q-error">⚠ Name is required</p>
+    </div>
+
+    <div class="q-card" data-q="respondent_contact" data-required="true">
+      <span class="q-label">WhatsApp Number or Email<span class="q-required">*</span></span>
+      <p class="q-hint">You will only be contacted if necessary</p>
+      <input class="text-input" type="text" name="respondent_contact" placeholder="03xx-xxxxxxx or email">
+      <p class="q-error">⚠ Contact is required</p>
+    </div>
+
+    <div class="q-card" data-q="respondent_city">
+      <span class="q-label">City / Region</span>
+      <input class="text-input" type="text" name="respondent_city" placeholder="e.g. Lahore, Karachi, Rawalpindi...">
+    </div>
+
+    <div class="consent-card">
+      <h3>📋 Consent</h3>
+      <div class="consent-item">
+        <input type="checkbox" id="c1">
+        <label for="c1">I am 18 years or older, or I have permission from a parent/guardian.</label>
+      </div>
+      <div class="consent-item">
+        <input type="checkbox" id="c2">
+        <label for="c2">I understand that my participation is voluntary.</label>
+      </div>
+      <div class="consent-item">
+        <input type="checkbox" id="c3">
+        <label for="c3">I agree that my responses may be used for academic research.</label>
+      </div>
+    </div>
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="startSurvey()">Start Survey →</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: Rider Profile ===== -->
+  <div class="survey-section" id="section-1">
+    <div class="section-header">
+      <div class="section-icon">🏇</div>
+      <div><h2>Rider Profile</h2><p>About you and your riding</p></div>
+    </div>
+
+    <div class="q-card" data-q="q1" data-required="true">
+      <span class="q-label"><span class="q-num">1.</span> Aap horse riding mein kya karte hain?<span class="q-required">*</span></span>
+      <p class="q-hint">Select all that apply</p>
+      <div class="option-grid">
+        <label class="option-btn"><input type="checkbox" name="q1" value="Rider"><span class="custom-check"></span>Rider (sawaar)</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Horse Owner"><span class="custom-check"></span>Horse owner (ghore ka maalik)</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Trainer"><span class="custom-check"></span>Trainer / instructor</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Groom"><span class="custom-check"></span>Groom / stable worker</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Tent Pegging"><span class="custom-check"></span>Tent pegging participant</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Polo"><span class="custom-check"></span>Polo participant</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Recreational"><span class="custom-check"></span>Recreational / shauqia rider</label>
+        <label class="option-btn"><input type="checkbox" name="q1" value="Other"><span class="custom-check"></span>Other</label>
+      </div>
+      <div class="other-input-wrapper" id="q1-other"><input class="text-input" type="text" placeholder="Please specify..." name="q1_other"></div>
+      <p class="q-error">⚠ Please select at least one option</p>
+    </div>
+
+    <div class="q-card" data-q="q2" data-required="true">
+      <span class="q-label"><span class="q-num">2.</span> Kitne saal se ride kar rahe hain?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q2" value="< 1 year"><span class="custom-check"></span>1 saal se kam</label>
+        <label class="option-btn"><input type="radio" name="q2" value="1-3 years"><span class="custom-check"></span>1–3 saal</label>
+        <label class="option-btn"><input type="radio" name="q2" value="4-7 years"><span class="custom-check"></span>4–7 saal</label>
+        <label class="option-btn"><input type="radio" name="q2" value="8-15 years"><span class="custom-check"></span>8–15 saal</label>
+        <label class="option-btn"><input type="radio" name="q2" value="15+ years"><span class="custom-check"></span>15 saal se zyada</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q3" data-required="true">
+      <span class="q-label"><span class="q-num">3.</span> Kitni baar ride karte hain?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q3" value="< 1/month"><span class="custom-check"></span>Mahine mein 1 se kam baar</label>
+        <label class="option-btn"><input type="radio" name="q3" value="1-3/month"><span class="custom-check"></span>Mahine mein 1–3 baar</label>
+        <label class="option-btn"><input type="radio" name="q3" value="1-2/week"><span class="custom-check"></span>Hafte mein 1–2 baar</label>
+        <label class="option-btn"><input type="radio" name="q3" value="3-5/week"><span class="custom-check"></span>Hafte mein 3–5 baar</label>
+        <label class="option-btn"><input type="radio" name="q3" value="Daily"><span class="custom-check"></span>Rozana ya taqreeban rozana</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goSection('consent')">← Back</button>
+      <button class="btn btn-primary" onclick="goSection(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: Saddle Use ===== -->
+  <div class="survey-section" id="section-2">
+    <div class="section-header">
+      <div class="section-icon">🪑</div>
+      <div><h2>Saddle Use</h2><p>Your saddle and setup</p></div>
+    </div>
+
+    <div class="q-card" data-q="q5" data-required="true">
+      <span class="q-label"><span class="q-num">4.</span> Zyada tar kaunsa saddle use karte hain?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q5" value="English/General"><span class="custom-check"></span>General-purpose / English saddle</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Tent Pegging"><span class="custom-check"></span>Tent pegging saddle</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Polo"><span class="custom-check"></span>Polo saddle</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Desi/Local"><span class="custom-check"></span>Desi / local saddle</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Western"><span class="custom-check"></span>Western saddle</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Not sure"><span class="custom-check"></span>Pata nahi</label>
+        <label class="option-btn"><input type="radio" name="q5" value="Other"><span class="custom-check"></span>Other</label>
+      </div>
+      <div class="other-input-wrapper" id="q5-other"><input class="text-input" type="text" placeholder="Please specify..." name="q5_other"></div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q6" data-required="true">
+      <span class="q-label"><span class="q-num">5.</span> Yeh saddle kahan se mila?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q6" value="Made in Pakistan"><span class="custom-check"></span>Pakistan mein bana hua</label>
+        <label class="option-btn"><input type="radio" name="q6" value="Imported"><span class="custom-check"></span>Bahar se imported</label>
+        <label class="option-btn"><input type="radio" name="q6" value="Second-hand"><span class="custom-check"></span>Second-hand / purana</label>
+        <label class="option-btn"><input type="radio" name="q6" value="Custom-made"><span class="custom-check"></span>Custom banwaya</label>
+        <label class="option-btn"><input type="radio" name="q6" value="Not sure"><span class="custom-check"></span>Pata nahi</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q7" data-required="true">
+      <span class="q-label"><span class="q-num">6.</span> Saddle aur ghore ki peeth ke darmiyan kya rakhte hain?<span class="q-required">*</span></span>
+      <p class="q-hint">Select all that apply</p>
+      <div class="option-grid">
+        <label class="option-btn"><input type="checkbox" name="q7" value="Saddle pad"><span class="custom-check"></span>Saddle pad / numnah</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Blanket"><span class="custom-check"></span>Kambal (blanket)</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Foam pad"><span class="custom-check"></span>Foam pad</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Gel pad"><span class="custom-check"></span>Gel pad</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Folded cloth"><span class="custom-check"></span>Kapra / folded cloth</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Nothing"><span class="custom-check"></span>Kuch nahi rakhte</label>
+        <label class="option-btn"><input type="checkbox" name="q7" value="Other"><span class="custom-check"></span>Other</label>
+      </div>
+      <div class="other-input-wrapper" id="q7-other"><input class="text-input" type="text" placeholder="Please specify..." name="q7_other"></div>
+      <p class="q-error">⚠ Please select at least one option</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goSection(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goSection(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: Problems ===== -->
+  <div class="survey-section" id="section-3">
+    <div class="section-header">
+      <div class="section-icon">⚠️</div>
+      <div><h2>Problems & Discomfort</h2><p>Issues during riding</p></div>
+    </div>
+
+    <div class="q-card" data-q="q8" data-required="true">
+      <span class="q-label"><span class="q-num">7.</span> Pichle 6 mahino mein saddle riding ke dauran hilta/khiskata raha?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q8" value="Never"><span class="custom-check"></span>Kabhi nahi</label>
+        <label class="option-btn"><input type="radio" name="q8" value="Sometimes"><span class="custom-check"></span>Kabhi kabhi</label>
+        <label class="option-btn"><input type="radio" name="q8" value="Often"><span class="custom-check"></span>Aksar</label>
+        <label class="option-btn"><input type="radio" name="q8" value="Almost every ride"><span class="custom-check"></span>Taqreeban har ride mein</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q9" data-required="true">
+      <span class="q-label"><span class="q-num">8.</span> Riding ke dauran aap ko takleef hoti hai?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q9" value="Never"><span class="custom-check"></span>Kabhi nahi</label>
+        <label class="option-btn"><input type="radio" name="q9" value="Rarely"><span class="custom-check"></span>Bohot kam</label>
+        <label class="option-btn"><input type="radio" name="q9" value="Sometimes"><span class="custom-check"></span>Kabhi kabhi</label>
+        <label class="option-btn"><input type="radio" name="q9" value="Often"><span class="custom-check"></span>Aksar</label>
+        <label class="option-btn"><input type="radio" name="q9" value="Every ride"><span class="custom-check"></span>Har ride mein</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q10">
+      <span class="q-label"><span class="q-num">9.</span> Takleef kahan mehsoos hoti hai?</span>
+      <p class="q-hint">Select all that apply</p>
+      <div class="option-grid">
+        <label class="option-btn"><input type="checkbox" name="q10" value="Lower back"><span class="custom-check"></span>Kamar (lower back)</label>
+        <label class="option-btn"><input type="checkbox" name="q10" value="Hips"><span class="custom-check"></span>Hips / pelvis</label>
+        <label class="option-btn"><input type="checkbox" name="q10" value="Inner thighs"><span class="custom-check"></span>Raan / inner thighs</label>
+        <label class="option-btn"><input type="checkbox" name="q10" value="Knees"><span class="custom-check"></span>Ghutne (knees)</label>
+        <label class="option-btn"><input type="checkbox" name="q10" value="Seat area"><span class="custom-check"></span>Seat area</label>
+        <label class="option-btn"><input type="checkbox" name="q10" value="No discomfort"><span class="custom-check"></span>Koi takleef nahi hoti</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q="q11" data-required="true">
+      <span class="q-label"><span class="q-num">10.</span> Stirrups aur girth adjust karna kitna aasan hai?<span class="q-required">*</span></span>
+      <div class="scale-labels"><span>Very difficult</span><span>Very easy</span></div>
+      <div class="scale-row">
+        <div class="scale-btn" data-val="1" onclick="selectScale(this,'q11')">1</div>
+        <div class="scale-btn" data-val="2" onclick="selectScale(this,'q11')">2</div>
+        <div class="scale-btn" data-val="3" onclick="selectScale(this,'q11')">3</div>
+        <div class="scale-btn" data-val="4" onclick="selectScale(this,'q11')">4</div>
+        <div class="scale-btn" data-val="5" onclick="selectScale(this,'q11')">5</div>
+      </div>
+      <input type="hidden" name="q11" value="">
+      <p class="q-error">⚠ Please select a number</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goSection(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goSection(4)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: Maintenance ===== -->
+  <div class="survey-section" id="section-4">
+    <div class="section-header">
+      <div class="section-icon">🔧</div>
+      <div><h2>Maintenance & Weather</h2><p>Repair and climate effects</p></div>
+    </div>
+
+    <div class="q-card" data-q="q13" data-required="true">
+      <span class="q-label"><span class="q-num">11.</span> Kaunsi cheezein saddle ko zyada asar karti hain?<span class="q-required">*</span></span>
+      <p class="q-hint">Select all that apply</p>
+      <div class="option-grid">
+        <label class="option-btn"><input type="checkbox" name="q13" value="Heat/Sun"><span class="custom-check"></span>Garmi / dhoop</label>
+        <label class="option-btn"><input type="checkbox" name="q13" value="Horse sweat"><span class="custom-check"></span>Ghore ka paseena</label>
+        <label class="option-btn"><input type="checkbox" name="q13" value="Dust"><span class="custom-check"></span>Dhool / mitti</label>
+        <label class="option-btn"><input type="checkbox" name="q13" value="Rain/Humidity"><span class="custom-check"></span>Baarish / nami</label>
+        <label class="option-btn"><input type="checkbox" name="q13" value="None"><span class="custom-check"></span>Koi asar nahi hota</label>
+      </div>
+      <p class="q-error">⚠ Please select at least one option</p>
+    </div>
+
+    <div class="q-card" data-q="q14" data-required="true">
+      <span class="q-label"><span class="q-num">12.</span> Saddle ki marammat karwani pari hai?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q14" value="Many times"><span class="custom-check"></span>Haan, kai baar</label>
+        <label class="option-btn"><input type="radio" name="q14" value="Once or twice"><span class="custom-check"></span>Haan, 1–2 baar</label>
+        <label class="option-btn"><input type="radio" name="q14" value="No"><span class="custom-check"></span>Nahi</label>
+        <label class="option-btn"><input type="radio" name="q14" value="Not sure"><span class="custom-check"></span>Pata nahi</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q15" data-required="true">
+      <span class="q-label"><span class="q-num">13.</span> Apne ilaqe mein saddle ki marammat ya parts milna kitna aasan hai?<span class="q-required">*</span></span>
+      <div class="scale-labels"><span>Very difficult</span><span>Very easy</span></div>
+      <div class="scale-row">
+        <div class="scale-btn" data-val="1" onclick="selectScale(this,'q15')">1</div>
+        <div class="scale-btn" data-val="2" onclick="selectScale(this,'q15')">2</div>
+        <div class="scale-btn" data-val="3" onclick="selectScale(this,'q15')">3</div>
+        <div class="scale-btn" data-val="4" onclick="selectScale(this,'q15')">4</div>
+        <div class="scale-btn" data-val="5" onclick="selectScale(this,'q15')">5</div>
+      </div>
+      <input type="hidden" name="q15" value="">
+      <p class="q-error">⚠ Please select a number</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goSection(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goSection(5)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: Design + Open ===== -->
+  <div class="survey-section" id="section-5">
+    <div class="section-header">
+      <div class="section-icon">💡</div>
+      <div><h2>Design & Your Opinion</h2><p>Final section — your suggestions</p></div>
+    </div>
+
+    <div class="q-card" data-q="q16" data-required="true">
+      <span class="q-label"><span class="q-num">14.</span> Saddle mein sab se zaroori 3 cheezein kya hain?<span class="q-required">*</span></span>
+      <p class="q-hint">Select exactly 3 options</p>
+      <div class="option-grid">
+        <label class="option-btn"><input type="checkbox" name="q16" value="Horse comfort" data-max="3"><span class="custom-check"></span>Ghore ka aaram</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Rider comfort" data-max="3"><span class="custom-check"></span>Rider ka aaram</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Stability" data-max="3"><span class="custom-check"></span>Riding mein stability</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Correct fit" data-max="3"><span class="custom-check"></span>Sahi fit</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Safety" data-max="3"><span class="custom-check"></span>Safety / hifazat</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Durability" data-max="3"><span class="custom-check"></span>Mazbooti (durability)</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Easy cleaning" data-max="3"><span class="custom-check"></span>Aasan safai / drying</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Easy repair" data-max="3"><span class="custom-check"></span>Aasan marammat</label>
+        <label class="option-btn"><input type="checkbox" name="q16" value="Affordable price" data-max="3"><span class="custom-check"></span>Sasti qeemat</label>
+      </div>
+      <p class="q-error">⚠ Please select exactly 3 options</p>
+    </div>
+
+    <div class="q-card" data-q="q17" data-required="true">
+      <span class="q-label"><span class="q-num">15.</span> Kya aisa saddle pasand karein ge jis ke pads ya covers nikal kar badal sakein?<span class="q-required">*</span></span>
+      <div class="option-grid">
+        <label class="option-btn"><input type="radio" name="q17" value="Yes, definitely"><span class="custom-check"></span>Haan, zaroor</label>
+        <label class="option-btn"><input type="radio" name="q17" value="Probably yes"><span class="custom-check"></span>Shayad haan</label>
+        <label class="option-btn"><input type="radio" name="q17" value="Not sure"><span class="custom-check"></span>Pata nahi</label>
+        <label class="option-btn"><input type="radio" name="q17" value="No"><span class="custom-check"></span>Nahi</label>
+      </div>
+      <p class="q-error">⚠ Please select one option</p>
+    </div>
+
+    <div class="q-card" data-q="q18" data-required="true">
+      <span class="q-label"><span class="q-num">16.</span> Sab se bara saddle-related masla kya raha hai?<span class="q-required">*</span></span>
+      <p class="q-hint">This is the most important question — please describe in detail</p>
+      <textarea class="text-area" name="q18" placeholder="Apne tajurbe se batayen... maslan: saddle khisak jata hai, kamar dard hoti hai, marammat mushkil hai..."></textarea>
+      <p class="q-error">⚠ This field is required</p>
+    </div>
+
+    <div class="q-card" data-q="q19" data-required="true">
+      <span class="q-label"><span class="q-num">17.</span> Agar saddle mein ek cheez badal sakte toh kya badlein ge aur kyun?<span class="q-required">*</span></span>
+      <textarea class="text-area" name="q19" placeholder="Yahan likhen..."></textarea>
+      <p class="q-error">⚠ This field is required</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goSection(4)">← Back</button>
+      <button class="btn btn-submit" onclick="submitSurvey()">✅ Submit Survey</button>
+    </div>
+  </div>
+
+  <!-- THANK YOU -->
+  <div class="thank-you" id="thankYou">
+    <span class="ty-icon">🎉</span>
+    <h2>Thank You!</h2>
+    <p>Your response has been recorded. Your input will help improve saddle design for riders in Pakistan.</p>
+  </div>
+
+</div>
+
+<script>
+// ===== CONFIG: Paste your Google Apps Script Web App URL here =====
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyoW6fF2-7Ygb6VGAbPW7KMURUJ0shfQOYh2Pl7X2SY4JEfDSlPYpxRAE_eBX-thOv2QQ/exec';
+
+const sectionOrder = ['consent','1','2','3','4','5'];
+let currentSection = 'consent';
+
+document.querySelectorAll('.option-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = btn.querySelector('input');
+    if (!input) return;
+    if (input.type === 'radio') {
+      btn.closest('.option-grid').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+      input.checked = true; btn.classList.add('selected');
+    } else if (input.type === 'checkbox') {
+      const maxAttr = input.getAttribute('data-max');
+      if (maxAttr) { const max = parseInt(maxAttr); const checked = btn.closest('.option-grid').querySelectorAll('input:checked'); if (!input.checked && checked.length >= max) return; }
+      input.checked = !input.checked; btn.classList.toggle('selected', input.checked);
+    }
+    const name = input.name;
+    const ow = document.getElementById(name + '-other');
+    if (ow) { const oc = btn.closest('.option-grid').querySelector('input[value="Other"]'); ow.classList.toggle('visible', oc && oc.checked); }
+    btn.closest('.q-card').classList.remove('has-error');
+  });
+});
+
+function selectScale(el, qName) {
+  el.parentElement.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.querySelector(`input[name="${qName}"]`).value = el.dataset.val;
+  el.closest('.q-card').classList.remove('has-error');
+}
+
+document.querySelectorAll('.text-input, .text-area').forEach(inp => {
+  inp.addEventListener('input', () => { const c = inp.closest('.q-card'); if (c) c.classList.remove('has-error'); });
+});
+
+function goSection(target) {
+  const targetIdx = typeof target === 'number' ? target : sectionOrder.indexOf(target);
+  const currentIdx = sectionOrder.indexOf(currentSection);
+  if (targetIdx > currentIdx && !validateSection(currentSection)) return;
+  document.getElementById('section-' + currentSection).classList.remove('active');
+  const targetKey = typeof target === 'number' ? String(target) : target;
+  currentSection = targetKey;
+  const el = document.getElementById('section-' + targetKey);
+  el.classList.remove('active'); void el.offsetHeight; el.classList.add('active');
+  updateProgress(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startSurvey() {
+  if (!document.getElementById('c1').checked || !document.getElementById('c2').checked || !document.getElementById('c3').checked) { alert('Please check all consent boxes to continue.'); return; }
+  if (!validateSection('consent')) return;
+  goSection(1);
+}
+
+function updateProgress() {
+  const idx = sectionOrder.indexOf(currentSection);
+  const pct = Math.round((idx / (sectionOrder.length - 1)) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+}
+
+function validateSection(sectionKey) {
+  const section = document.getElementById('section-' + sectionKey);
+  const cards = section.querySelectorAll('.q-card[data-required="true"]');
+  let valid = true;
+  cards.forEach(card => {
+    const qName = card.dataset.q; card.classList.remove('has-error');
+    const radios = card.querySelectorAll(`input[type="radio"][name="${qName}"]`);
+    if (radios.length > 0) { if (!card.querySelector(`input[type="radio"][name="${qName}"]:checked`)) { card.classList.add('has-error'); valid = false; } return; }
+    const checks = card.querySelectorAll(`input[type="checkbox"][name="${qName}"]`);
+    if (checks.length > 0) { const checked = card.querySelectorAll(`input[type="checkbox"][name="${qName}"]:checked`); if (qName === 'q16') { if (checked.length !== 3) { card.classList.add('has-error'); valid = false; } return; } if (checked.length === 0) { card.classList.add('has-error'); valid = false; } return; }
+    const ti = card.querySelector(`input[type="text"][name="${qName}"]`);
+    if (ti) { if (!ti.value.trim()) { card.classList.add('has-error'); valid = false; } return; }
+    const ta = card.querySelector(`textarea[name="${qName}"]`);
+    if (ta) { if (!ta.value.trim()) { card.classList.add('has-error'); valid = false; } return; }
+    const h = card.querySelector(`input[type="hidden"][name="${qName}"]`);
+    if (h) { if (!h.value) { card.classList.add('has-error'); valid = false; } return; }
+  });
+  if (!valid) { const fe = section.querySelector('.has-error'); if (fe) fe.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  return valid;
+}
+
+function collectData() {
+  const fields = {
+    respondent_name:'Name', respondent_contact:'Contact', respondent_city:'City',
+    q1:'Role', q2:'Experience', q3:'Frequency', q5:'Saddle Type', q6:'Saddle Source', q7:'Padding',
+    q8:'Saddle Movement', q9:'Discomfort', q10:'Discomfort Area', q11:'Stirrup Ease',
+    q13:'Weather Effects', q14:'Repair History', q15:'Repair Availability',
+    q16:'Top 3 Priorities', q17:'Replaceable Parts', q18:'Biggest Problem', q19:'One Change'
+  };
+  const data = {};
+  for (const [qName, label] of Object.entries(fields)) {
+    const checks = document.querySelectorAll(`input[type="checkbox"][name="${qName}"]:checked`);
+    if (checks.length > 0) { const vals = Array.from(checks).map(c => c.value); const oi = document.querySelector(`input[name="${qName}_other"]`); if (oi && oi.value.trim() && vals.includes('Other')) vals[vals.indexOf('Other')] = 'Other: ' + oi.value.trim(); data[label] = vals.join('; '); continue; }
+    const radio = document.querySelector(`input[type="radio"][name="${qName}"]:checked`);
+    if (radio) { let val = radio.value; const oi = document.querySelector(`input[name="${qName}_other"]`); if (oi && oi.value.trim() && val === 'Other') val = 'Other: ' + oi.value.trim(); data[label] = val; continue; }
+    const hidden = document.querySelector(`input[type="hidden"][name="${qName}"]`);
+    if (hidden && hidden.value) { data[label] = hidden.value; continue; }
+    const text = document.querySelector(`input[type="text"][name="${qName}"]`) || document.querySelector(`textarea[name="${qName}"]`);
+    if (text && text.value.trim()) { data[label] = text.value.trim(); continue; }
+    data[label] = '';
+  }
+  return data;
+}
+
+async function submitSurvey() {
+  if (!validateSection('5')) return;
+  const data = collectData();
+  data['Timestamp'] = new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' });
+  const allResponses = JSON.parse(localStorage.getItem('saddle_survey_responses') || '[]');
+  allResponses.push(data);
+  localStorage.setItem('saddle_survey_responses', JSON.stringify(allResponses));
+  if (GOOGLE_SHEET_URL) {
+    document.getElementById('submitOverlay').classList.add('active');
+    try { await fetch(GOOGLE_SHEET_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); } catch(e) { console.log('Sheet error:', e); }
+    document.getElementById('submitOverlay').classList.remove('active');
+  }
+  document.getElementById('section-5').classList.remove('active');
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('thankYou').classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = '100%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+updateProgress();
+</script>
+</body>
+</html>
